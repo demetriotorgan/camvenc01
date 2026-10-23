@@ -6,6 +6,39 @@ export class CameraCapture {
         this.fotoBlob = null;
     }
 
+    mostrarDiagnostico(dados) {
+    let painel = document.getElementById('diagnostico-camera');
+
+    if (!painel) {
+        painel = document.createElement('pre');
+        painel.id = 'diagnostico-camera';
+
+        Object.assign(painel.style, {
+            position: 'fixed',
+            top: '5px',
+            left: '5px',
+            right: '5px',
+            maxHeight: '45vh',
+            overflowY: 'auto',
+            background: 'rgba(0, 0, 0, 0.90)',
+            color: '#00ff80',
+            padding: '10px',
+            fontSize: '11px',
+            lineHeight: '1.4',
+            whiteSpace: 'pre-wrap',
+            overflowWrap: 'anywhere',
+            zIndex: '999999',
+            margin: '0',
+            border: '1px solid #00ff80',
+            borderRadius: '6px'
+        });
+
+        document.body.appendChild(painel);
+    }
+
+    painel.textContent = JSON.stringify(dados, null, 2);
+}
+
     async abrirCamera() {
         //Tenta abrir camera traseira
         try {
@@ -49,7 +82,45 @@ export class CameraCapture {
 
         //4. Iniciar reprodução
         await this.video.play();
-        console.log("Camera iniciada com sucesso");
+        // Pequena espera para o navegador atualizar as dimensões
+await new Promise(resolve => setTimeout(resolve, 300));
+
+const track = this.stream.getVideoTracks()[0];
+const configuracao = track.getSettings();
+
+this.mostrarDiagnostico({
+    momento: "CAMERA INICIADA",
+
+    camera: {
+        larguraConfigurada: configuracao.width,
+        alturaConfigurada: configuracao.height,
+        videoWidth: this.video.videoWidth,
+        videoHeight: this.video.videoHeight
+    },
+
+    viewport: {
+        innerWidth: window.innerWidth,
+        innerHeight: window.innerHeight,
+        clientWidth: document.documentElement.clientWidth,
+        clientHeight: document.documentElement.clientHeight,
+        devicePixelRatio: window.devicePixelRatio
+    },
+
+    videoNaTela: (() => {
+        const rect = this.video.getBoundingClientRect();
+
+        return {
+            top: rect.top,
+            bottom: rect.bottom,
+            left: rect.left,
+            right: rect.right,
+            width: rect.width,
+            height: rect.height
+        };
+    })()
+});
+
+console.log("Camera iniciada com sucesso");
     }
 
     encerrarCamera() {
