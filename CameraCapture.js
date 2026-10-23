@@ -1,3 +1,4 @@
+
 export class CameraCapture {
     constructor({ video, canvas }) {
         this.video = video;
@@ -6,181 +7,195 @@ export class CameraCapture {
         this.fotoBlob = null;
     }
 
-    mostrarDiagnostico(dados) {
-    let painel = document.getElementById('diagnostico-camera');
+    // Exibe na tela os dados necessários para investigar a geometria.
+    mostrarDiagnostico(momento) {
+        let painel = document.getElementById('diagnostico-camera');
 
-    if (!painel) {
-        painel = document.createElement('pre');
-        painel.id = 'diagnostico-camera';
+        if (!painel) {
+            painel = document.createElement('pre');
+            painel.id = 'diagnostico-camera';
 
-        Object.assign(painel.style, {
-            position: 'fixed',
-            top: '5px',
-            left: '5px',
-            right: '5px',
-            maxHeight: '45vh',
-            overflowY: 'auto',
-            background: 'rgba(0, 0, 0, 0.90)',
-            color: '#00ff80',
-            padding: '10px',
-            fontSize: '11px',
-            lineHeight: '1.4',
-            whiteSpace: 'pre-wrap',
-            overflowWrap: 'anywhere',
-            zIndex: '999999',
-            margin: '0',
-            border: '1px solid #00ff80',
-            borderRadius: '6px'
-        });
+            Object.assign(painel.style, {
+                position: 'fixed',
+                top: '5px',
+                left: '5px',
+                right: '5px',
+                maxHeight: '45vh',
+                overflowY: 'auto',
+                background: 'rgba(0, 0, 0, 0.9)',
+                color: '#00ff80',
+                padding: '10px',
+                fontSize: '11px',
+                lineHeight: '1.4',
+                whiteSpace: 'pre-wrap',
+                overflowWrap: 'anywhere',
+                zIndex: '999999',
+                margin: '0',
+                border: '1px solid #00ff80',
+                borderRadius: '6px'
+            });
 
-        document.body.appendChild(painel);
+            document.body.appendChild(painel);
+        }
+
+        const rect = this.video.getBoundingClientRect();
+        const configuracao = this.stream
+            ?.getVideoTracks()[0]
+            ?.getSettings();
+
+        const dados = {
+            momento,
+
+            camera: {
+                largura: this.video.videoWidth,
+                altura: this.video.videoHeight,
+                larguraConfigurada: configuracao?.width,
+                alturaConfigurada: configuracao?.height
+            },
+
+            viewport: {
+                largura: window.innerWidth,
+                altura: window.innerHeight,
+                devicePixelRatio: window.devicePixelRatio
+            },
+
+            videoNaTela: {
+                top: rect.top,
+                bottom: rect.bottom,
+                left: rect.left,
+                right: rect.right,
+                largura: rect.width,
+                altura: rect.height
+            },
+
+            canvas: {
+                largura: this.canvas.width,
+                altura: this.canvas.height
+            }
+        };
+
+        painel.textContent = JSON.stringify(dados, null, 2);
     }
 
-    painel.textContent = JSON.stringify(dados, null, 2);
-}
-
+    // Abre a câmera e inicia a reprodução.
     async abrirCamera() {
-        //Tenta abrir camera traseira
         try {
-            const stream = await navigator.mediaDevices.getUserMedia({
+            this.stream = await navigator.mediaDevices.getUserMedia({
                 video: {
-                    facingMode: { ideal: "environment" }, // traseira
+                    facingMode: { ideal: 'environment' },
                     width: { ideal: 1920 },
                     height: { ideal: 1080 }
                 },
                 audio: false
             });
-            //Associar  fluxo ao elemento de video
-            this.stream = stream;
-            this.video.srcObject = stream;
-
         } catch (error) {
-            // Se não tiver traseira (PC / notebook), cai pra qualquer câmera
-            console.warn("Não achou câmera traseira, tentando frontal...", e);
-            const stream = await navigator.mediaDevices.getUserMedia({
+            console.warn(
+                'Falha ao abrir a câmera preferencial. Tentando alternativa.',
+                error
+            );
+
+            this.stream = await navigator.mediaDevices.getUserMedia({
                 video: true,
                 audio: false
             });
-            this.stream = stream;
-            this.video.srcObject = stream;
         }
 
+        this.video.srcObject = this.stream;
 
-        //Aguardar o video estar pronto
-        await new Promise((resolve, reject) => {
-            if (this.video.readyState >= 2) {
-                resolve();
-                return;
+        try {
+            if (this.video.readyState < 2) {
+                await new Promise((resolve, reject) => {
+                    this.video.addEventListener(
+                        'loadeddata',
+                        resolve,
+                        { once: true }
+                    );
+
+                    this.video.addEventListener(
+                        'error',
+                        reject,
+                        { once: true }
+                    );
+                });
             }
-            this.video.addEventListener('loadeddata', resolve, {
-                once: true
-            });
-            this.video.addEventListener('error', reject, {
-                once: true
-            })
-        })
 
-        //4. Iniciar reprodução
-        await this.video.play();
-        // Pequena espera para o navegador atualizar as dimensões
-await new Promise(resolve => setTimeout(resolve, 300));
+            await this.video.play();
 
-const track = this.stream.getVideoTracks()[0];
-const configuracao = track.getSettings();
+            this.mostrarDiagnostico('CAMERA INICIADA');
 
-this.mostrarDiagnostico({
-    momento: "CAMERA INICIADA",
-
-    camera: {
-        larguraConfigurada: configuracao.width,
-        alturaConfigurada: configuracao.height,
-        videoWidth: this.video.videoWidth,
-        videoHeight: this.video.videoHeight
-    },
-
-    viewport: {
-        innerWidth: window.innerWidth,
-        innerHeight: window.innerHeight,
-        clientWidth: document.documentElement.clientWidth,
-        clientHeight: document.documentElement.clientHeight,
-        devicePixelRatio: window.devicePixelRatio
-    },
-
-    videoNaTela: (() => {
-        const rect = this.video.getBoundingClientRect();
-
-        return {
-            top: rect.top,
-            bottom: rect.bottom,
-            left: rect.left,
-            right: rect.right,
-            width: rect.width,
-            height: rect.height
-        };
-    })()
-});
-
-console.log("Camera iniciada com sucesso");
-    }
-
-    encerrarCamera() {
-        //1. Interromper todas as faixas de camera
-        if (this.stream) {
-            this.stream.getTracks().forEach(track => {
-                track.stop();
-            });
-            //2. Libera o fluxo
-            this.stream = null;
+            console.log('Câmera iniciada com sucesso');
+        } catch (error) {
+            this.encerrarCamera();
+            throw error;
         }
-        //3. Desassociar o fluxo ao elemento de video
-        this.video.pause();
-        this.video.srcObject = null;
-
-        //4. Limpar a referencia a foto se existir
-        this.fotoBlob = null;
-        console.log('Camera encerrada com sucesso');
     }
 
+    // Captura o quadro atual do vídeo.
     async capturarFoto() {
-        //1.Verificar se camera esta pronta
-        if (!this.stream || !this.video.videoWidth || !this.video.videoHeight) {
-            throw new Error('A camera precisa estar aberta para capturar a foto')
-        };
+        if (
+            !this.stream ||
+            !this.video.videoWidth ||
+            !this.video.videoHeight
+        ) {
+            throw new Error(
+                'A câmera precisa estar aberta para capturar a foto.'
+            );
+        }
 
-        //2. Ajustar o canvas a resolução real do video
         this.canvas.width = this.video.videoWidth;
         this.canvas.height = this.video.videoHeight;
 
-        //3. Copiar o quadro atual do video para o canvas
-        const contexto = this.canvas.getContext("2d");
-        contexto.drawImage(this.video, 0, 0, this.canvas.width, this.canvas.height);
+        const contexto = this.canvas.getContext('2d');
 
-        //4. Converter o canvas em um arquivo de imagem
+        contexto.drawImage(
+            this.video,
+            0,
+            0,
+            this.canvas.width,
+            this.canvas.height
+        );
+
         const blob = await new Promise((resolve, reject) => {
-            this.canvas.toBlob((resultado) => {
-                if (resultado) {
-                    resolve(resultado)
-                } else {
-                    reject(new Error('Não foi possível gerar a imagem'));
-                }
-            }, "image/jpeg", 0.95);
+            this.canvas.toBlob(
+                resultado => {
+                    if (resultado) {
+                        resolve(resultado);
+                    } else {
+                        reject(
+                            new Error('Não foi possível gerar a imagem.')
+                        );
+                    }
+                },
+                'image/jpeg',
+                0.95
+            );
         });
 
-        //5. Guardar e devolver a fotografia
         this.fotoBlob = blob;
-        console.log('Foto capturada com sucesso', {
+
+        this.mostrarDiagnostico('FOTO CAPTURADA');
+
+        console.log('Foto capturada:', {
             largura: this.canvas.width,
             altura: this.canvas.height,
             tamanho: blob.size,
             tipo: blob.type
         });
 
-        console.log("Dimensões do vídeo:", {
-            larguraReal: this.video.videoWidth,
-            alturaReal: this.video.videoHeight,
-            larguraExibida: this.video.clientWidth,
-            alturaExibida: this.video.clientHeight
-        });
         return blob;
+    }
+
+    // Encerra a câmera e libera seus recursos.
+    encerrarCamera() {
+        if (this.stream) {
+            this.stream.getTracks().forEach(track => track.stop());
+            this.stream = null;
+        }
+
+        this.video.pause();
+        this.video.srcObject = null;
+        this.fotoBlob = null;
+
+        console.log('Câmera encerrada com sucesso');
     }
 }
