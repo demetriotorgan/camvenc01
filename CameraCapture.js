@@ -7,75 +7,7 @@ export class CameraCapture {
         this.fotoBlob = null;
     }
 
-    // Exibe na tela os dados necessários para investigar a geometria.
-    mostrarDiagnostico(momento) {
-        let painel = document.getElementById('diagnostico-camera');
-
-        if (!painel) {
-            painel = document.createElement('pre');
-            painel.id = 'diagnostico-camera';
-
-            Object.assign(painel.style, {
-                position: 'fixed',
-                top: '5px',
-                left: '5px',
-                right: '5px',
-                maxHeight: '45vh',
-                overflowY: 'auto',
-                background: 'rgba(0, 0, 0, 0.9)',
-                color: '#00ff80',
-                padding: '10px',
-                fontSize: '11px',
-                lineHeight: '1.4',
-                whiteSpace: 'pre-wrap',
-                overflowWrap: 'anywhere',
-                zIndex: '999999',
-                margin: '0',
-                border: '1px solid #00ff80',
-                borderRadius: '6px'
-            });
-
-            document.body.appendChild(painel);
-        }
-
-        const rect = this.video.getBoundingClientRect();
-        const configuracao = this.stream
-            ?.getVideoTracks()[0]
-            ?.getSettings();
-
-        const dados = {
-            momento,
-
-            camera: {
-                largura: this.video.videoWidth,
-                altura: this.video.videoHeight,
-                larguraConfigurada: configuracao?.width,
-                alturaConfigurada: configuracao?.height
-            },
-
-            viewport: {
-                largura: window.innerWidth,
-                altura: window.innerHeight,
-                devicePixelRatio: window.devicePixelRatio
-            },
-
-            videoNaTela: {
-                top: rect.top,
-                bottom: rect.bottom,
-                left: rect.left,
-                right: rect.right,
-                largura: rect.width,
-                altura: rect.height
-            },
-
-            canvas: {
-                largura: this.canvas.width,
-                altura: this.canvas.height
-            }
-        };
-
-        painel.textContent = JSON.stringify(dados, null, 2);
-    }
+    
 
     // Abre a câmera e inicia a reprodução.
     async abrirCamera() {
@@ -119,9 +51,7 @@ export class CameraCapture {
                 });
             }
 
-            await this.video.play();
-
-            this.mostrarDiagnostico('CAMERA INICIADA');
+            await this.video.play();           
 
             console.log('Câmera iniciada com sucesso');
         } catch (error) {
@@ -173,8 +103,7 @@ export class CameraCapture {
 
         this.fotoBlob = blob;
 
-        this.mostrarDiagnostico('FOTO CAPTURADA');
-
+        
         console.log('Foto capturada:', {
             largura: this.canvas.width,
             altura: this.canvas.height,
