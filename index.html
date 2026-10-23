@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>CameraCapture</title>
+</head>
+
+<body>
+    <div id="camera-container">
+        <video id="video" autoplay playsinline></video>
+        <div id="moldura-validade">
+            <span>Posicione a validade aqui</span>
+        </div>
+    </div>
+
+    <canvas id="canvas" hidden></canvas>
+
+    <button id="abrirCamera">Abrir Camera</button>
+    <button id="btn-encerrar">Fechar</button>
+    <button id="btn-capturar">Capturar</button>
+
+    <!--Previa da foto-->
+    <section id="area-foto">
+        <h2>Fotografia capturada</h2>
+        <img id="foto-capturada" src="" alt="" hidden>
+    </section>
+
+    <!--Validação dos dados de camera-->
+
+    <section id="painel-diagnostico">
+        <h2>Diagnóstico da câmera</h2>
+
+        <p>
+            Os valores abaixo servem para validar o mapeamento
+            da moldura antes de implementar o recorte.
+        </p>
+
+        <button id="atualizar-diagnostico" type="button">
+            Atualizar diagnóstico
+        </button>
+
+        <pre id="diagnostico-camera">Aguardando a câmera...</pre>
+    </section>
+
+    <script type="module" src="main.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,91 @@
+
+#camera-container {
+    position: relative;
+    width: 100%;
+    max-width: 640px;
+    margin: 0 auto;
+    overflow: hidden;
+    background: #111;
+}
+
+#video {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
+#moldura-validade {
+    position: absolute;
+
+    /* Centralizar a moldura sobre o vídeo */
+    left: 10%;
+    top: 35%;
+    width: 80%;
+    height: 30%;
+
+    box-sizing: border-box;
+    border: 3px solid #2373F4;
+    border-radius: 8px;
+
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+
+    pointer-events: none;
+}
+
+#moldura-validade span {
+    background: #2373F4;
+    color: white;
+    font-family: sans-serif;
+    font-size: 12px;
+    padding: 5px 8px;
+    border-radius: 0 0 5px 5px;
+    text-align: center;
+}
+
+/* ----Diagnostico---- */
+
+#painel-diagnostico {
+    width: 100%;
+    max-width: 640px;
+    margin: 16px auto;
+    padding: 12px;
+    box-sizing: border-box;
+    background: #f3f6fa;
+    color: #172033;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    font-family: sans-serif;
+}
+
+#painel-diagnostico h2 {
+    font-size: 18px;
+    margin-top: 0;
+}
+
+#painel-diagnostico p {
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+#atualizar-diagnostico {
+    padding: 10px 14px;
+    border: 0;
+    border-radius: 6px;
+    background: #2373F4;
+    color: white;
+    font-size: 14px;
+}
+
+#diagnostico-camera {
+    margin-top: 12px;
+    padding: 10px;
+    background: #ffffff;
+    border: 1px solid #d5dce5;
+    border-radius: 6px;
+    font-size: 11px;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
