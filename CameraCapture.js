@@ -7,14 +7,31 @@ export class CameraCapture {
     }
 
     async abrirCamera() {
-        //Solicitar acesso a camera
-        const stream = await navigator.mediaDevices.getUserMedia({
-            video: true,
-            audio: false
-        });
-        //Associar  fluxo ao elemento de video
-        this.stream = stream;
-        this.video.srcObject = stream;
+        //Tenta abrir camera traseira
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({
+                video: {
+                    facingMode: { ideal: "environment" }, // traseira
+                    width: { ideal: 1920 },
+                    height: { ideal: 1080 }
+                },
+                audio: false
+            });
+            //Associar  fluxo ao elemento de video
+            this.stream = stream;
+            this.video.srcObject = stream;
+
+        } catch (error) {
+            // Se não tiver traseira (PC / notebook), cai pra qualquer câmera
+            console.warn("Não achou câmera traseira, tentando frontal...", e);
+            const stream = await navigator.mediaDevices.getUserMedia({
+                video: true,
+                audio: false
+            });
+            this.stream = stream;
+            this.video.srcObject = stream;
+        }
+
 
         //Aguardar o video estar pronto
         await new Promise((resolve, reject) => {
