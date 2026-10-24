@@ -189,7 +189,8 @@ function atualizarDiagnostico(momento) {
 // Botão: abrir câmera
 document.querySelector('#abrirCamera').addEventListener('click', async () => {
     try {
-        await camera.abrirCamera();
+        await camera.abrirCamera();        
+        container.classList.add('camera-ativa');
         atualizarDiagnostico('CAMERA INICIADA');
     } catch (error) {
         console.error('Erro ao abrir câmera:', error);
@@ -225,6 +226,7 @@ document.querySelector('#btn-capturar').addEventListener('click', async () => {
 // Botão: encerrar câmera
 document.querySelector('#btn-encerrar').addEventListener('click', () => {
     camera.encerrarCamera();
+    container.classList.remove('camera-ativa');
     imagemCapturada.hidden = true;
 });
 

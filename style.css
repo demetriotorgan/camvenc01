@@ -1,11 +1,27 @@
 
 #camera-container {
+    display: none;
     position: relative;
     width: 100%;
     max-width: 640px;
     margin: 0 auto;
     overflow: hidden;
     background: #111;
+}
+
+/* Exibe o container somente quando a câmera estiver ativa */
+#camera-container.camera-ativa {
+    display: block;
+}
+
+/* Esconde a moldura enquanto a câmera estiver inativa */
+#camera-container #moldura-validade {
+    display: none;
+}
+
+/* Mostra a moldura quando a câmera estiver ativa */
+#camera-container.camera-ativa #moldura-validade {
+    display: flex;
 }
 
 #video,
