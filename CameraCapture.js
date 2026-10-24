@@ -6,7 +6,6 @@ export class CameraCapture {
         this.stream = null;
         this.fotoBlob = null;
     }
-
     
 
     // Abre a câmera e inicia a reprodução.
