@@ -8,10 +8,13 @@
     background: #111;
 }
 
-#video {
+#video,
+#foto-capturada {
     display: block;
     width: 100%;
     height: auto;
+    max-width: 640px;
+    margin: 0 auto;
 }
 
 #moldura-validade {
